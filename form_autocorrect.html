@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form C - Auto-correct/Suggestions</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            max-width: 540px;
+            width: 100%;
+            padding: 48px;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #1a202c;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #718096;
+            font-size: 16px;
+            margin-bottom: 36px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 14px;
+            letter-spacing: 0.3px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 15px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            background: #f7fafc;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #4facfe;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(79, 172, 254, 0.1);
+        }
+
+        .suggestion {
+            background: linear-gradient(135deg, #fff8e1 0%, #ffe082 100%);
+            border: 2px solid #ffd54f;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 8px;
+            font-size: 13px;
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+
+        .suggestion.show {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .suggestion-text {
+            color: #f57f17;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .suggestion-button {
+            background: linear-gradient(135deg, #ffd54f 0%, #ffb300 100%);
+            color: #1a202c;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(255, 179, 0, 0.3);
+        }
+
+        .suggestion-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 179, 0, 0.5);
+        }
+
+        button {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 12px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(79, 172, 254, 0.6);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .results {
+            display: none;
+        }
+
+        .results.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .result-item {
+            background: linear-gradient(135deg, #f6f8fb 0%, #e1f5fe 100%);
+            padding: 24px;
+            margin: 16px 0;
+            border-radius: 16px;
+            border-left: 5px solid #4facfe;
+            transition: transform 0.3s ease;
+        }
+
+        .result-item:hover {
+            transform: translateX(5px);
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .result-value {
+            font-size: 36px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div id="formSection">
+            <h1>User Registration Form</h1>
+            <p class="subtitle">Version C: Auto-correct/Suggestions</p>
+
+            <form id="userForm">
+                <div class="form-group">
+                    <label for="fullName">Full Name *</label>
+                    <input type="text" id="fullName" name="fullName" required>
+                    <div class="suggestion" id="fullNameSuggestion">
+                        <div class="suggestion-text" id="fullNameSuggestionText"></div>
+                        <button type="button" class="suggestion-button" id="fullNameApply">Apply Suggestion</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email Address *</label>
+                    <input type="email" id="email" name="email" required>
+                    <div class="suggestion" id="emailSuggestion">
+                        <div class="suggestion-text" id="emailSuggestionText"></div>
+                        <button type="button" class="suggestion-button" id="emailApply">Apply Suggestion</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone Number *</label>
+                    <input type="tel" id="phone" name="phone" required>
+                    <div class="suggestion" id="phoneSuggestion">
+                        <div class="suggestion-text" id="phoneSuggestionText"></div>
+                        <button type="button" class="suggestion-button" id="phoneApply">Apply Suggestion</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="age">Age *</label>
+                    <input type="number" id="age" name="age" required>
+                    <div class="suggestion" id="ageSuggestion">
+                        <div class="suggestion-text" id="ageSuggestionText"></div>
+                        <button type="button" class="suggestion-button" id="ageApply">Apply Suggestion</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="country">Country *</label>
+                    <select id="country" name="country" required>
+                        <option value="">Select a country</option>
+                        <option value="US">United States</option>
+                        <option value="CA">Canada</option>
+                        <option value="UK">United Kingdom</option>
+                        <option value="AU">Australia</option>
+                        <option value="DE">Germany</option>
+                        <option value="FR">France</option>
+                        <option value="JP">Japan</option>
+                        <option value="IN">India</option>
+                        <option value="BR">Brazil</option>
+                        <option value="MX">Mexico</option>
+                    </select>
+                </div>
+
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+        <div id="resultsSection" class="results">
+            <h1>Submission Successful!</h1>
+            <p class="subtitle">Thank you for completing the form</p>
+
+            <div class="result-item">
+                <div class="result-label">Completion Time</div>
+                <div class="result-value" id="completionTime">0</div>
+            </div>
+
+            <div class="result-item">
+                <div class="result-label">Number of Error Messages</div>
+                <div class="result-value" id="errorCount">0</div>
+            </div>
+
+            <div class="result-item">
+                <div class="result-label">Submission Attempts</div>
+                <div class="result-value" id="attemptCount">0</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let startTime = Date.now();
+        let errorCount = 0;
+        let attemptCount = 0;
+
+        const form = document.getElementById('userForm');
+        const inputs = {
+            fullName: document.getElementById('fullName'),
+            email: document.getElementById('email'),
+            phone: document.getElementById('phone'),
+            age: document.getElementById('age'),
+            country: document.getElementById('country')
+        };
+
+        let suggestions = {
+            fullName: '',
+            email: '',
+            phone: '',
+            age: ''
+        };
+        function validateFullName(value) {
+            const words = value.trim().split(/\s+/);
+            return words.length >= 2 && words.every(w => w.length > 0);
+        }
+
+        function validateEmail(value) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+        }
+
+        function validatePhone(value) {
+            const digits = value.replace(/\D/g, '');
+            return digits.length === 10;
+        }
+
+        function validateAge(value) {
+            const age = parseInt(value);
+            return !isNaN(age) && age >= 18 && age <= 120;
+        }
+
+        function validateCountry(value) {
+            return value !== '';
+        }
+
+        function showSuggestion(field, message, correctedValue) {
+            const suggestionDiv = document.getElementById(field + 'Suggestion');
+            const suggestionText = document.getElementById(field + 'SuggestionText');
+
+            suggestionText.textContent = message;
+            suggestions[field] = correctedValue;
+            suggestionDiv.classList.add('show');
+            errorCount++;
+        }
+
+        function hideSuggestion(field) {
+            const suggestionDiv = document.getElementById(field + 'Suggestion');
+            suggestionDiv.classList.remove('show');
+        }
+        // Full Name suggestions
+        inputs.fullName.addEventListener('blur', function () {
+            const value = this.value.trim();
+            if (value && !validateFullName(value)) {
+                const words = value.split(/\s+/);
+                if (words.length === 1) {
+                    showSuggestion('fullName', 'Suggestion: Add a last name (e.g., "' + value + ' Smith")', value + ' Smith');
+                }
+            } else if (value && validateFullName(value)) {
+                hideSuggestion('fullName');
+            }
+        });
+
+        document.getElementById('fullNameApply').addEventListener('click', function () {
+            inputs.fullName.value = suggestions.fullName;
+            hideSuggestion('fullName');
+        });
+
+        // Email suggestions
+        inputs.email.addEventListener('blur', function () {
+            const value = this.value.trim();
+            if (value && !validateEmail(value)) {
+                if (!value.includes('@')) {
+                    showSuggestion('email', 'Suggestion: Add "@gmail.com" (e.g., "' + value + '@gmail.com")', value + '@gmail.com');
+                } else if (!value.includes('.')) {
+                    showSuggestion('email', 'Suggestion: Add ".com" (e.g., "' + value + '.com")', value + '.com');
+                }
+            } else if (value && validateEmail(value)) {
+                hideSuggestion('email');
+            }
+        });
+
+        document.getElementById('emailApply').addEventListener('click', function () {
+            inputs.email.value = suggestions.email;
+            hideSuggestion('email');
+        });
+        // Phone suggestions
+        inputs.phone.addEventListener('blur', function () {
+            const value = this.value.trim();
+            const digits = value.replace(/\D/g, '');
+
+            if (value && !validatePhone(value)) {
+                if (digits.length > 0 && digits.length < 10) {
+                    const needed = 10 - digits.length;
+                    const padded = digits + '0'.repeat(needed);
+                    showSuggestion('phone', 'Suggestion: Pad with zeros to make 10 digits: ' + padded, padded);
+                } else if (digits.length > 10) {
+                    const trimmed = digits.substring(0, 10);
+                    showSuggestion('phone', 'Suggestion: Use first 10 digits: ' + trimmed, trimmed);
+                }
+            } else if (value && validatePhone(value)) {
+                hideSuggestion('phone');
+            }
+        });
+
+        document.getElementById('phoneApply').addEventListener('click', function () {
+            inputs.phone.value = suggestions.phone;
+            hideSuggestion('phone');
+        });
+
+        // Age suggestions
+        inputs.age.addEventListener('blur', function () {
+            const value = this.value.trim();
+            const age = parseInt(value);
+
+            if (value && !validateAge(value)) {
+                if (age < 18) {
+                    showSuggestion('age', 'Suggestion: Minimum age is 18', '18');
+                } else if (age > 120) {
+                    showSuggestion('age', 'Suggestion: Maximum age is 120', '120');
+                }
+            } else if (value && validateAge(value)) {
+                hideSuggestion('age');
+            }
+        });
+
+        document.getElementById('ageApply').addEventListener('click', function () {
+            inputs.age.value = suggestions.age;
+            hideSuggestion('age');
+        });
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            attemptCount++;
+
+            let isValid = true;
+
+            // Validate all fields
+            if (!validateFullName(inputs.fullName.value)) {
+                isValid = false;
+            }
+
+            if (!validateEmail(inputs.email.value)) {
+                isValid = false;
+            }
+
+            if (!validatePhone(inputs.phone.value)) {
+                isValid = false;
+            }
+
+            if (!validateAge(inputs.age.value)) {
+                isValid = false;
+            }
+
+            if (!validateCountry(inputs.country.value)) {
+                isValid = false;
+            }
+
+            if (isValid) {
+                const completionTime = ((Date.now() - startTime) / 1000).toFixed(2);
+
+                document.getElementById('completionTime').textContent = completionTime + ' seconds';
+                document.getElementById('errorCount').textContent = errorCount;
+                document.getElementById('attemptCount').textContent = attemptCount;
+
+                document.getElementById('formSection').style.display = 'none';
+                document.getElementById('resultsSection').classList.add('show');
+            }
+        });
+    </script>
+</body>
+
+</html>

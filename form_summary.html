@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form B - Error Summary</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            max-width: 540px;
+            width: 100%;
+            padding: 48px;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #1a202c;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #718096;
+            font-size: 16px;
+            margin-bottom: 36px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .error-summary {
+            background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
+            border: 2px solid #fc8181;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+
+        .error-summary.show {
+            display: block;
+        }
+
+        .error-summary h3 {
+            color: #c53030;
+            margin-bottom: 12px;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .error-summary ul {
+            margin: 0;
+            padding-left: 24px;
+        }
+
+        .error-summary li {
+            color: #e53e3e;
+            margin: 8px 0;
+            font-weight: 500;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 14px;
+            letter-spacing: 0.3px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 15px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            background: #f7fafc;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #f5576c;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(245, 87, 108, 0.1);
+        }
+
+        button {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 12px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 87, 108, 0.6);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .results {
+            display: none;
+        }
+
+        .results.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .result-item {
+            background: linear-gradient(135deg, #f6f8fb 0%, #fce7eb 100%);
+            padding: 24px;
+            margin: 16px 0;
+            border-radius: 16px;
+            border-left: 5px solid #f5576c;
+            transition: transform 0.3s ease;
+        }
+
+        .result-item:hover {
+            transform: translateX(5px);
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .result-value {
+            font-size: 36px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div id="formSection">
+            <h1>User Registration Form</h1>
+            <p class="subtitle">Version B: Error Summary</p>
+
+            <div id="errorSummary" class="error-summary">
+                <h3>Please correct the following errors:</h3>
+                <ul id="errorList"></ul>
+            </div>
+
+            <form id="userForm">
+                <div class="form-group">
+                    <label for="fullName">Full Name *</label>
+                    <input type="text" id="fullName" name="fullName" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address *</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone Number *</label>
+                    <input type="tel" id="phone" name="phone" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="age">Age *</label>
+                    <input type="number" id="age" name="age" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="country">Country *</label>
+                    <select id="country" name="country" required>
+                        <option value="">Select a country</option>
+                        <option value="US">United States</option>
+                        <option value="CA">Canada</option>
+                        <option value="UK">United Kingdom</option>
+                        <option value="AU">Australia</option>
+                        <option value="DE">Germany</option>
+                        <option value="FR">France</option>
+                        <option value="JP">Japan</option>
+                        <option value="IN">India</option>
+                        <option value="BR">Brazil</option>
+                        <option value="MX">Mexico</option>
+                    </select>
+                </div>
+
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+
+        <div id="resultsSection" class="results">
+            <h1>Submission Successful!</h1>
+            <p class="subtitle">Thank you for completing the form</p>
+
+            <div class="result-item">
+                <div class="result-label">Completion Time</div>
+                <div class="result-value" id="completionTime">0</div>
+            </div>
+
+            <div class="result-item">
+                <div class="result-label">Number of Error Messages</div>
+                <div class="result-value" id="errorCount">0</div>
+            </div>
+
+            <div class="result-item">
+                <div class="result-label">Submission Attempts</div>
+                <div class="result-value" id="attemptCount">0</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let startTime = Date.now();
+        let errorCount = 0;
+        let attemptCount = 0;
+
+        const form = document.getElementById('userForm');
+        const errorSummary = document.getElementById('errorSummary');
+        const errorList = document.getElementById('errorList');
+
+        const inputs = {
+            fullName: document.getElementById('fullName'),
+            email: document.getElementById('email'),
+            phone: document.getElementById('phone'),
+            age: document.getElementById('age'),
+            country: document.getElementById('country')
+        };
+
+        function validateFullName(value) {
+            const words = value.trim().split(/\s+/);
+            return words.length >= 2 && words.every(w => w.length > 0);
+        }
+
+        function validateEmail(value) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+        }
+
+        function validatePhone(value) {
+            const digits = value.replace(/\D/g, '');
+            return digits.length === 10;
+        }
+
+        function validateAge(value) {
+            const age = parseInt(value);
+            return !isNaN(age) && age >= 18 && age <= 120;
+        }
+
+        function validateCountry(value) {
+            return value !== '';
+        }
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            attemptCount++;
+
+            const errors = [];
+
+            // Validate all fields
+            if (!validateFullName(inputs.fullName.value)) {
+                errors.push('Full Name must contain at least 2 words');
+            }
+
+            if (!validateEmail(inputs.email.value)) {
+                errors.push('Email Address must be valid (e.g., user@example.com)');
+            }
+
+            if (!validatePhone(inputs.phone.value)) {
+                errors.push('Phone Number must be a valid 10-digit number');
+            }
+
+            if (!validateAge(inputs.age.value)) {
+                errors.push('Age must be between 18 and 120');
+            }
+
+            if (!validateCountry(inputs.country.value)) {
+                errors.push('Country must be selected');
+            }
+
+            if (errors.length > 0) {
+                // Show error summary
+                errorList.innerHTML = '';
+                errors.forEach(error => {
+                    const li = document.createElement('li');
+                    li.textContent = error;
+                    errorList.appendChild(li);
+                    errorCount++;
+                });
+                errorSummary.classList.add('show');
+                errorSummary.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                // Success
+                const completionTime = ((Date.now() - startTime) / 1000).toFixed(2);
+
+                document.getElementById('completionTime').textContent = completionTime + ' seconds';
+                document.getElementById('errorCount').textContent = errorCount;
+                document.getElementById('attemptCount').textContent = attemptCount;
+
+                document.getElementById('formSection').style.display = 'none';
+                document.getElementById('resultsSection').classList.add('show');
+            }
+        });
+    </script>
+</body>
+
+</html>
